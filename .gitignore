@@ -1,0 +1,6 @@
+account.json
+**/*.tfstate*
+**/.terraform
+**/.DS_Store
+**/*.ami
+**/*.log

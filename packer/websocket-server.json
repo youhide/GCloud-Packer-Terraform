@@ -1,0 +1,37 @@
+{
+  "builders": [{
+      "type": "googlecompute",
+      "account_file": "../account.json",
+      "project_id": "playgroundtest-204913",
+      "source_image": "debian-9-stretch-v20180510",
+      "ssh_username": "packer",
+      "zone": "us-central1-a",
+      "image_name": "websocket-server-{{timestamp}}"
+  }],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": [
+        "sudo mkdir /var/app",
+        "sudo chown -R packer:packer /var/app"
+      ]
+    },
+    {
+      "type": "file",
+      "source": "./app/",
+      "destination": "/var/app"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "curl https://deb.nodesource.com/setup_8.x | sudo -E bash -",
+        "sudo apt-get install -y nodejs",
+        "sudo npm i -g pm2",
+        "sudo env PATH=$PATH:/usr/bin /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u packer --hp /home/packer",
+        "cd /var/app && npm install",
+        "cd /var/app && pm2 start server.js",
+        "pm2 save"
+      ]
+    }
+  ]
+}
